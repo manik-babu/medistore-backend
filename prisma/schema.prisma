@@ -28,7 +28,7 @@ model Medicine {
   isBanned     Boolean   @default(false)
   isFeatured   Boolean   @default(false)
   userId       String
-  // user User @relation(fields:[userId], references: [id], onDelete: Cascade)
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   name         String
   descriptions String
   categoryId   String?
@@ -38,6 +38,9 @@ model Medicine {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
+  @@index([userId])
+  @@index([categoryId])
+  @@index([isBanned])
   @@map("medicines")
 }
 
@@ -48,17 +51,18 @@ model Review {
   content    String
   rating     Int
   userId     String
-  // user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
+  @@index([medicineId])
   @@map("reviews")
 }
 
 model Cart {
   id         String    @id @default(uuid())
   userId     String
-  // user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   medicineId String?
   medicine   Medicine? @relation(fields: [medicineId], references: [id])
   quantity   Int
@@ -67,18 +71,23 @@ model Cart {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
+  @@index([userId])
+  @@index([orderId])
   @@map("carts")
 }
 
 model Order {
   id         String      @id @default(uuid())
   customerId String
-  // customer User @relation("customerOrders",fields: [customerId], references: [id], onDelete: Cascade)
+  customer   User        @relation("customerOrders", fields: [customerId], references: [id], onDelete: Cascade)
   sellerId   String
-  // seller User @relation("sellerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+  seller     User        @relation("sellerOrders", fields: [sellerId], references: [id], onDelete: Cascade)
   status     OrderStatus
   carts      Cart[]
 
+  @@index([customerId])
+  @@index([sellerId])
+  @@index([status])
   @@map("orders")
 }
 
@@ -87,4 +96,80 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+model User {
+  id             String     @id
+  name           String
+  email          String
+  emailVerified  Boolean    @default(false)
+  image          String?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  role           String     @default("CUSTOMER")
+  contact        String?
+  bio            String?
+  age            Int?
+  isBanned       Boolean?   @default(false)
+  storeName      String?
+  sessions       Session[]
+  accounts       Account[]
+  medicines      Medicine[]
+  reviews        Review[]
+  carts          Cart[]
+  customerOrders Order[]    @relation("customerOrders")
+  sellerOrders   Order[]    @relation("sellerOrders")
+
+  @@unique([email])
+  @@index([role])
+  @@index([isBanned])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
