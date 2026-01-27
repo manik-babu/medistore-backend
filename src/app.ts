@@ -2,6 +2,8 @@ import { toNodeHandler } from 'better-auth/node';
 import express, { Application, Request, Response } from 'express';
 import { auth } from './lib/auth';
 import globalErrorHandler from './middleware/errorHandler';
+import authMiddleware from "./middleware/auth"
+import { UserRole } from './types/userRole';
 
 const app: Application = express();
 
