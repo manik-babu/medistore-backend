@@ -2,6 +2,7 @@ import { betterAuth, string } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 // If your Prisma file is located elsewhere, you can change the path
 import { prisma } from "./prisma";
+import sendMail from "../helper/sendEmail";
 
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
@@ -37,5 +38,21 @@ export const auth = betterAuth({
                 required: false
             }
         }
-    }
+    },
+    emailAndPassword: {
+        enabled: true,
+        autoSignIn: false,
+        requireEmailVerification: true
+    },
+    emailVerification: {
+        sendOnSignUp: true,
+        sendVerificationEmail: async ({ user, url, token }, request) => {
+            try {
+                await sendMail(user, url, token);
+            }
+            catch (error) {
+                console.log("An error accured ", error);
+            }
+        },
+    },
 });
