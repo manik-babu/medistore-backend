@@ -26,6 +26,7 @@ model Category {
 model Medicine {
   id           String    @id @default(uuid())
   image        String
+  price        Int
   isBanned     Boolean   @default(false)
   isFeatured   Boolean   @default(false)
   authorId     String

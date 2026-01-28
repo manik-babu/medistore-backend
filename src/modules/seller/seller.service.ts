@@ -8,6 +8,7 @@ type MedicinePayload = {
     name: string;
     descriptions: string,
     categoryId: string;
+    price: number;
 
 }
 const addMedicine = async (payload: MedicinePayload, userId: string) => {
@@ -18,13 +19,15 @@ const addMedicine = async (payload: MedicinePayload, userId: string) => {
             name: payload.name,
             descriptions: payload.descriptions,
             categoryId: payload.categoryId,
+            price: payload.price
         }
     });
 }
 
-const getAllMedicines = async (isBanned: boolean, searchText: string, sortby: "asc" | "desc", page: number, limit: number, category: string) => {
+const getAllMedicines = async (isBanned: boolean, searchText: string, sortby: "asc" | "desc", page: number, limit: number, category: string, userId: string) => {
     const result = await prisma.medicine.findMany({
         where: {
+            authorId: userId,
             isBanned: isBanned,
             name: {
                 contains: searchText,
@@ -40,6 +43,7 @@ const getAllMedicines = async (isBanned: boolean, searchText: string, sortby: "a
     });
     const total = await prisma.medicine.count({
         where: {
+            authorId: userId,
             isBanned: isBanned,
             name: {
                 contains: searchText,

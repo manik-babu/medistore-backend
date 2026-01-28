@@ -7,6 +7,7 @@ import cors from 'cors'
 import { sellerRoute } from './modules/seller/seller.routes';
 import { adminRoute } from './modules/admin/admin.routes';
 import { UserRole } from '../generated/prisma/enums';
+import { medicineRoute } from './modules/medicine/medicine.routes';
 
 const app: Application = express();
 
@@ -21,6 +22,7 @@ app.use(express.urlencoded());
 app.all("/api/auth/*splat", toNodeHandler(auth));
 app.use("/api/seller", authMiddleware(UserRole.SELLER), sellerRoute);
 app.use("/api/admin", authMiddleware(UserRole.ADMIN), adminRoute);
+app.use("/api/medicines", medicineRoute);
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({

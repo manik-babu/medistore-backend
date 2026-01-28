@@ -27,7 +27,7 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
         const limit = 10;
         const category = req.query.category as string || "ALL"
 
-        const result = await sellerService.getAllMedicines(isBanned, searchText, sortby, page, limit, category);
+        const result = await sellerService.getAllMedicines(isBanned, searchText, sortby, page, limit, category, req.user?.id!);
 
         res.status(200).json({
             ok: true,
