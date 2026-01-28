@@ -9,6 +9,7 @@ import { adminRoute } from './modules/admin/admin.routes';
 import { UserRole } from '../generated/prisma/enums';
 import { medicineRoute } from './modules/medicine/medicine.routes';
 import { reviewRoute } from './modules/review/review.routes';
+import { cartRoute } from './modules/cart/cart.routes';
 
 const app: Application = express();
 
@@ -25,6 +26,7 @@ app.use("/api/seller", authMiddleware(UserRole.SELLER), sellerRoute);
 app.use("/api/admin", authMiddleware(UserRole.ADMIN), adminRoute);
 app.use("/api", medicineRoute);
 app.use("/api/reviews", reviewRoute);
+app.use('/api/cart', authMiddleware(UserRole.CUSTOMER), cartRoute);
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({

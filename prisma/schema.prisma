@@ -63,16 +63,16 @@ model Review {
 }
 
 model Cart {
-  id         String    @id @default(uuid())
+  id         String   @id @default(uuid())
   authorId   String
-  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  medicineId String?
-  medicine   Medicine? @relation(fields: [medicineId], references: [id], onDelete: Cascade)
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  medicineId String
+  medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   quantity   Int
-  orderId    String
-  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  orderId    String?
+  order      Order?   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@index([authorId])
   @@index([orderId])

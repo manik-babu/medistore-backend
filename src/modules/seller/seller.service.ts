@@ -24,7 +24,7 @@ const addMedicine = async (payload: MedicinePayload, userId: string) => {
     });
 }
 
-const getAllMedicines = async (isBanned: boolean, searchText: string, sortby: "asc" | "desc", page: number, limit: number, category: string, userId: string) => {
+const getAllMedicines = async (isBanned: boolean, searchText: string, sortby: "asc" | "desc", page: number, limit: number, categoryId: string, userId: string) => {
     const result = await prisma.medicine.findMany({
         where: {
             authorId: userId,
@@ -33,7 +33,7 @@ const getAllMedicines = async (isBanned: boolean, searchText: string, sortby: "a
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(category !== "ALL" && { category: { name: category } })
+            ...(categoryId !== "ALL" && { category: { id: categoryId } })
         },
         orderBy: {
             createdAt: sortby
@@ -49,7 +49,7 @@ const getAllMedicines = async (isBanned: boolean, searchText: string, sortby: "a
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(category !== "ALL" && { category: { name: category } })
+            ...(categoryId !== "ALL" && { category: { id: categoryId } })
         },
         orderBy: {
             createdAt: sortby
