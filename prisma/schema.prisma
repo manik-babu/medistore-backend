@@ -85,8 +85,13 @@ model Order {
   customer   User        @relation("customerOrders", fields: [customerId], references: [id], onDelete: Cascade)
   sellerId   String
   seller     User        @relation("sellerOrders", fields: [sellerId], references: [id], onDelete: Cascade)
-  status     OrderStatus
+  status     OrderStatus @default(PROCESSING)
+  address    String
+  phone      String
+  name       String
   carts      Cart[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
 
   @@index([customerId])
   @@index([sellerId])
