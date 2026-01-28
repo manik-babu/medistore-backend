@@ -2,21 +2,29 @@ import { toNodeHandler } from 'better-auth/node';
 import express, { Application, Request, Response } from 'express';
 import { auth } from './lib/auth';
 import globalErrorHandler from './middleware/errorHandler';
-import authMiddleware from "./middleware/auth"
-import { UserRole } from './types/userRole';
+import cors from 'cors'
+import { sellerRoute } from './modules/seller/seller.routes';
+import { adminRoute } from './modules/admin/admin.routes';
 
 const app: Application = express();
 
+app.use(cors({
+    origin: [process.env.FRONTEND_URL!],
+    credentials: true
+}))
 app.use(express.json());
+app.use(express.urlencoded());
 
 // Better-auth api
 app.all("/api/auth/*splat", toNodeHandler(auth));
+app.use("/api/seller", sellerRoute);
+app.use("/api/admin", adminRoute);
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({
-        status: "success",
+        ok: true,
         message: "API is running successfully",
-        server: "Circle API",
+        server: "MediStore API",
         version: "1.0.0",
         timestamp: new Date().toISOString()
     });

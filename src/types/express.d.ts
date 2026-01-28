@@ -1,4 +1,4 @@
-import { UserRole } from "./userRole";
+import { UserRole } from "../../generated/prisma/enums";
 
 
 declare global {

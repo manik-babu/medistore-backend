@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { auth as betterAuth } from '../lib/auth'
-import { UserRole } from "../types/userRole";
+import { UserRole } from "../../generated/prisma/enums";
 
 const auth = (...roles: UserRole[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
