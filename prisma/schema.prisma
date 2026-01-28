@@ -52,8 +52,9 @@ model Review {
   medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   content    String
   rating     Int
-  authroId   String
-  author     User     @relation(fields: [authroId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  storeReply String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

@@ -95,5 +95,5 @@ const getCategories = async () => {
 export const medicineService = {
     getAllMedicines,
     getMedicineById,
-    getCategories,
+    getCategories
 }

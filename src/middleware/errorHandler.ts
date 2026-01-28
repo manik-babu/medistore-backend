@@ -16,7 +16,7 @@ const globalErrorHandler = (error: any, req: Request, res: Response, next: NextF
     }
     else if (error instanceof Prisma.PrismaClientValidationError) {
         statusCode = 400;
-        statusMessage = "Post creation faild! Invalid input type or require field is empty"
+        statusMessage = "Invalid input type or require field is empty"
     }
 
 
