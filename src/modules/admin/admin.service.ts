@@ -19,7 +19,7 @@ const getAllUsers = async (payload: GetAllUsersPayload) => {
                 mode: "insensitive"
             }
         },
-        skip: (payload.page - 1) * 10,
+        skip: (payload.page - 1) * payload.limit,
         take: payload.limit
     });
 

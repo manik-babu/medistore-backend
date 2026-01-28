@@ -65,7 +65,7 @@ model Cart {
   authorId   String
   author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   medicineId String?
-  medicine   Medicine? @relation(fields: [medicineId], references: [id])
+  medicine   Medicine? @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   quantity   Int
   orderId    String
   order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
