@@ -1,10 +1,12 @@
 import { toNodeHandler } from 'better-auth/node';
 import express, { Application, Request, Response } from 'express';
 import { auth } from './lib/auth';
+import authMiddleware from './middleware/auth'
 import globalErrorHandler from './middleware/errorHandler';
 import cors from 'cors'
 import { sellerRoute } from './modules/seller/seller.routes';
 import { adminRoute } from './modules/admin/admin.routes';
+import { UserRole } from '../generated/prisma/enums';
 
 const app: Application = express();
 
@@ -17,8 +19,8 @@ app.use(express.urlencoded());
 
 // Better-auth api
 app.all("/api/auth/*splat", toNodeHandler(auth));
-app.use("/api/seller", sellerRoute);
-app.use("/api/admin", adminRoute);
+app.use("/api/seller", authMiddleware(UserRole.SELLER), sellerRoute);
+app.use("/api/admin", authMiddleware(UserRole.ADMIN), adminRoute);
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({

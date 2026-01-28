@@ -28,8 +28,8 @@ model Medicine {
   image        String
   isBanned     Boolean   @default(false)
   isFeatured   Boolean   @default(false)
-  userId       String
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorId     String
+  author       User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   name         String
   descriptions String
   categoryId   String?
@@ -39,7 +39,7 @@ model Medicine {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  @@index([userId])
+  @@index([authorId])
   @@index([categoryId])
   @@index([isBanned])
   @@map("medicines")
@@ -51,8 +51,8 @@ model Review {
   medicine   Medicine @relation(fields: [medicineId], references: [id], onDelete: Cascade)
   content    String
   rating     Int
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authroId   String
+  author     User     @relation(fields: [authroId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -62,8 +62,8 @@ model Review {
 
 model Cart {
   id         String    @id @default(uuid())
-  userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  authorId   String
+  author     User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   medicineId String?
   medicine   Medicine? @relation(fields: [medicineId], references: [id])
   quantity   Int
@@ -72,7 +72,7 @@ model Cart {
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 
-  @@index([userId])
+  @@index([authorId])
   @@index([orderId])
   @@map("carts")
 }
