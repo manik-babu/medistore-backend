@@ -77,8 +77,26 @@ const updateUser = async (userId: string, isBanned: boolean) => {
         }
     });
 }
-const updateMedicine = async (medicineId: string, isBanned: boolean, isFeatured: boolean) => {
-    //
+const updateMedicine = async (medicineId: string, data: { isBanned?: boolean; isFeatured?: boolean }) => {
+    const medicine = await prisma.medicine.findUnique({
+        where: {
+            id: medicineId
+        },
+        select: {
+            id: true,
+        }
+    });
+    console.log(medicine)
+    if (!medicine) {
+        throw new CustomError.NotFoundError("Unable to update the medicine! The medicine might no longer exist.");
+    }
+
+    return await prisma.medicine.update({
+        where: {
+            id: medicineId
+        },
+        data: data
+    });
 }
 
 const adminService = {
