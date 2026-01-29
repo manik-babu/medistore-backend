@@ -36,6 +36,11 @@ const getReviews = async (rating: number, sortby: "asc" | "desc", page: number, 
                     name: true,
                     image: true,
                 }
+            },
+            medicine: {
+                select: {
+                    authorId: true
+                }
             }
         },
         orderBy: {
@@ -88,9 +93,42 @@ const deleteReview = async (reviewId: string, user: LoggedInUser) => {
     });
 }
 
+const reviewReply = async (reviewId: string, data: string, sellerId: string) => {
+    const review = await prisma.review.findUnique({
+        where: {
+            id: reviewId
+        },
+        select: {
+            medicine: {
+                select: {
+                    authorId: true
+                }
+            }
+        }
+    });
+    if (!review) {
+        throw new CustomError.NotFoundError("Unable to reply the review! The review might no longer exist.");
+    }
+
+    if (review.medicine.authorId !== sellerId) {
+        throw new CustomError.PermissionError("Unable to reply the review! Permission denied");
+    }
+
+    return await prisma.review.update({
+        where: {
+            id: reviewId
+        },
+        data: {
+            storeReply: data
+        }
+    });
+
+}
+
 
 export const reviewsService = {
     addReview,
     getReviews,
     deleteReview,
+    reviewReply,
 }

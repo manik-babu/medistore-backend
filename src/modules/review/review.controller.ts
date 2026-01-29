@@ -53,8 +53,23 @@ const deleteReview = async (req: Request, res: Response, next: NextFunction) => 
     }
 }
 
+const reviewReply = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await reviewsService.reviewReply(req.params.reviewId as string, req.body.data, req.user?.id as string);
+
+        res.status(200).json({
+            ok: true,
+            messgae: "Review reply successfully",
+            data: result
+        })
+    } catch (error: any) {
+        next(error);
+    }
+}
+
 export const reviewController = {
     addReview,
     getReviews,
     deleteReview,
+    reviewReply,
 }
