@@ -1,4 +1,5 @@
 import { UserRole } from "../../../generated/prisma/enums"
+import CustomError from "../../helper/customError";
 import { prisma } from "../../lib/prisma";
 
 type GetAllUsersPayload = {
@@ -54,9 +55,36 @@ const addCategory = async ({ name }: { name: string }) => {
         }
     });
 }
+const updateUser = async (userId: string, isBanned: boolean) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId
+        },
+        select: {
+            id: true,
+        }
+    })
+    if (!user) {
+        throw new CustomError.NotFoundError("Unable to update user! The user might no longer exist.");
+    }
+
+    return await prisma.user.update({
+        where: {
+            id: userId
+        },
+        data: {
+            isBanned: isBanned
+        }
+    });
+}
+const updateMedicine = async (medicineId: string, isBanned: boolean, isFeatured: boolean) => {
+    //
+}
 
 const adminService = {
     getAllUsers,
     addCategory,
+    updateUser,
+    updateMedicine,
 }
 export default adminService;

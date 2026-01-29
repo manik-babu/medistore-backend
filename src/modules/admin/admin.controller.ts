@@ -35,10 +35,31 @@ const addCategory = async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 }
+const updateUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await adminService.updateUser(req.params.userId as string, req.body.isBanned);
 
+        res.status(200).json({
+            ok: true,
+            message: "User update successfull",
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
+const updateMedicine = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // const result = await
+    } catch (error: any) {
+        next(error);
+    }
+}
 
 const adminController = {
     getAllUsers,
-    addCategory
+    addCategory,
+    updateUser,
+    updateMedicine,
 }
 export default adminController;
