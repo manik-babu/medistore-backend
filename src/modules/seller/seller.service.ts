@@ -1,4 +1,4 @@
-import { Medicine, UserRole } from "../../../generated/prisma/client";
+import { Medicine, OrderStatus, UserRole } from "../../../generated/prisma/client";
 import CustomError from "../../helper/customError";
 import { prisma } from "../../lib/prisma";
 import { LoggedInUser } from "../../types/loggedInUser";
@@ -113,10 +113,105 @@ const deleteMedicine = async (medicineId: string, user: LoggedInUser) => {
     });
 }
 
+// Orders services
+const getOrders = async (userId: string, status: OrderStatus | "ALL", sortby: "asc" | "desc") => {
+    const orders = await prisma.order.findMany({
+        where: {
+            sellerId: userId,
+            ...(status !== "ALL" && { status })
+        },
+        include: {
+            carts: {
+                select: {
+                    quantity: true,
+                    medicine: {
+                        select: {
+                            price: true
+                        }
+                    }
+                }
+            }
+        },
+        orderBy: {
+            createdAt: sortby
+        }
+    });
+
+    const formatedOrders = orders.map(order => {
+        const totalPrice = order.carts.reduce((total: number, cart: any) => cart.quantity * cart.medicine.price + total, 60);
+        const { carts, ...orderWithoutCarts } = order;
+        return {
+            ...orderWithoutCarts,
+            totalPrice
+        };
+    })
+    return formatedOrders;
+}
+
+const getSingleOrder = async (orderId: string, userId: string) => {
+    const order = await prisma.order.findUnique({
+        where: {
+            id: orderId,
+            sellerId: userId
+        },
+        include: {
+            carts: {
+                include: {
+                    medicine: {
+                        select: {
+                            id: true,
+                            name: true,
+                            image: true,
+                            price: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+    if (!order) {
+        throw new CustomError.NotFoundError("Unable to retrive your order! The order might no longer exist.");
+    }
+
+    return order;
+}
+const updateOrder = async (orderId: string, orderStatus: OrderStatus, userId: string) => {
+    const order = await prisma.order.findUnique({
+        where: {
+            id: orderId,
+            sellerId: userId
+        },
+        select: {
+            customerId: true,
+            status: true
+        }
+    });
+    console.log(order);
+    if (!order) {
+        throw new CustomError.NotFoundError("Unable to update your order! The order might no longer exist.");
+    }
+
+    if (order.status == OrderStatus.CANCELLED) {
+        throw new CustomError.PermissionError("Unable to update the order! Order is cancelled by customer");
+    }
+
+    return await prisma.order.update({
+        where: {
+            id: orderId
+        },
+        data: {
+            status: orderStatus
+        }
+    });
+}
+
 const sellerService = {
     addMedicine,
     updateMedicine,
     deleteMedicine,
     getAllMedicines,
+    getOrders,
+    getSingleOrder,
+    updateOrder,
 }
 export default sellerService;

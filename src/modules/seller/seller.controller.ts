@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import sellerService from "./seller.service";
 import CustomError from "../../helper/customError";
-import { UserRole } from "../../../generated/prisma/enums";
+import { OrderStatus, UserRole } from "../../../generated/prisma/enums";
 import { LoggedInUser } from "../../types/loggedInUser";
 
 
@@ -38,7 +38,6 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
         next(error);
     }
 }
-
 const updateMedicine = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user!;
@@ -77,10 +76,57 @@ const deleteMedicine = async (req: Request, res: Response, next: NextFunction) =
     }
 }
 
+// Orders controller
+const getOrders = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const sortby = (req.query.sortby as "asc" | "desc") || "desc";
+        const status: OrderStatus | "ALL" = req.query.status as OrderStatus || "ALL";
+        const result = await sellerService.getOrders(req.user?.id as string, status, sortby);
+
+        res.status(200).json({
+            ok: true,
+            message: "All orders retrived successfully",
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
+const getSingleOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await sellerService.getSingleOrder(req.params.orderId as string, req.user?.id as string)
+
+        res.status(200).json({
+            ok: true,
+            message: "Order retrived successfully",
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
+const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { orderStatus } = req.body;
+        const result = await sellerService.updateOrder(req.params.orderId as string, orderStatus, req.user?.id as string)
+
+        res.status(200).json({
+            ok: true,
+            message: `Order update to ${orderStatus}`,
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
+
 const sellerController = {
     addMedicine,
     updateMedicine,
     deleteMedicine,
     getAllMedicines,
+    getOrders,
+    getSingleOrder,
+    updateOrder,
 }
 export default sellerController;

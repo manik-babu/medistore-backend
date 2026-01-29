@@ -1,4 +1,3 @@
-import { Cart } from "../../../generated/prisma/client";
 import { OrderStatus } from "../../../generated/prisma/enums"
 import CustomError from "../../helper/customError";
 import { prisma } from "../../lib/prisma";
@@ -66,7 +65,7 @@ const getOrder = async (userId: string, sortby: "asc" | "desc", status: OrderSta
     });
 
     const formatedOrders = orders.map(order => {
-        const totalPrice = order.carts.reduce((total: number, cart: any) => cart.quantity * cart.medicine.price + total, 0);
+        const totalPrice = order.carts.reduce((total: number, cart: any) => cart.quantity * cart.medicine.price + total, 60);
         const { carts, ...orderWithoutCarts } = order;
         return {
             ...orderWithoutCarts,
@@ -75,10 +74,44 @@ const getOrder = async (userId: string, sortby: "asc" | "desc", status: OrderSta
     })
     return formatedOrders;
 }
+const getSingleOrder = async (orderId: string, userId: string) => {
+    const order = await prisma.order.findUnique({
+        where: {
+            id: orderId,
+            customerId: userId
+        },
+        include: {
+            seller: {
+                select: {
+                    id: true,
+                    name: true,
+                }
+            },
+            carts: {
+                include: {
+                    medicine: {
+                        select: {
+                            id: true,
+                            name: true,
+                            image: true,
+                            price: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+    if (!order) {
+        throw new CustomError.NotFoundError("Unable to retrive your order! The order might no longer exist.");
+    }
+
+    return order;
+}
 const updateOrder = async (orderId: string, userId: string) => {
     const order = await prisma.order.findUnique({
         where: {
-            id: orderId
+            id: orderId,
+            customerId: userId
         },
         select: {
             customerId: true,
@@ -87,10 +120,6 @@ const updateOrder = async (orderId: string, userId: string) => {
     });
     if (!order) {
         throw new CustomError.NotFoundError("Unable to cancel your order! The order might no longer exist.");
-    }
-
-    if (order.customerId != userId) {
-        throw new CustomError.PermissionError("Unable to cancel the order! Permission denied");
     }
 
     if (order.status !== OrderStatus.PROCESSING) {
@@ -112,4 +141,5 @@ export const orderService = {
     addOrder,
     getOrder,
     updateOrder,
+    getSingleOrder,
 }

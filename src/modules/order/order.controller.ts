@@ -30,6 +30,19 @@ const getOrder = async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 }
+const getSingleOrder = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await orderService.getSingleOrder(req.params.orderId as string, req.user?.id as string)
+
+        res.status(200).json({
+            ok: true,
+            message: "Order retrived successfully",
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
 const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const result = await orderService.updateOrder(req.params.orderId as string, req.user?.id as string)
@@ -49,4 +62,5 @@ export const orderController = {
     addOrder,
     getOrder,
     updateOrder,
+    getSingleOrder,
 }
