@@ -11,9 +11,11 @@ import { medicineRoute } from './modules/medicine/medicine.routes';
 import { reviewRoute } from './modules/review/review.routes';
 import { cartRoute } from './modules/cart/cart.routes';
 import { orderRoute } from './modules/order/order.routes';
-
+import dotenv from "dotenv";
+import path from 'path';
 const app: Application = express();
 
+dotenv.config({ path: path.join(process.cwd(), '.env') });
 app.use(cors({
     origin: [process.env.FRONTEND_URL!],
     credentials: true
