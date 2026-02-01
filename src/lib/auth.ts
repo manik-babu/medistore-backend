@@ -4,10 +4,19 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import sendMail from "../helper/sendEmail";
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
     }),
+    advanced: {
+        defaultCookieAttributes: {
+            secure: isProduction, // secure: true only in production
+            sameSite: isProduction ? 'none' : 'lax', // 'none' for cross-site in production, 'lax' for dev
+            httpOnly: true,
+        },
+    },
     trustedOrigins: [process.env.FRONTEND_URL!],
     user: {
         additionalFields: {

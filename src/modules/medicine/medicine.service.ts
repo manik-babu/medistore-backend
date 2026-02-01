@@ -2,7 +2,7 @@ import CustomError from "../../helper/customError";
 import { prisma } from "../../lib/prisma";
 
 
-const getAllMedicines = async (searchText: string, sortby: "asc" | "desc", page: number, limit: number, categoryId: string, storeId: string | null) => {
+const getAllMedicines = async (searchText: string, sortBy: Record<string, string | object>, page: number, limit: number, categoryId: string, storeId: string | null) => {
     const result = await prisma.medicine.findMany({
         where: {
             ...(storeId !== null && { authorId: storeId }),
@@ -11,7 +11,7 @@ const getAllMedicines = async (searchText: string, sortby: "asc" | "desc", page:
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(categoryId !== "ALL" && { category: { id: categoryId } })
+            ...(categoryId !== "all" && { category: { id: categoryId } })
         },
         include: {
             author: {
@@ -24,9 +24,7 @@ const getAllMedicines = async (searchText: string, sortby: "asc" | "desc", page:
             category: true
         },
 
-        orderBy: {
-            createdAt: sortby
-        },
+        orderBy: sortBy,
         skip: (page - 1) * limit,
         take: limit
     });
@@ -38,11 +36,9 @@ const getAllMedicines = async (searchText: string, sortby: "asc" | "desc", page:
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(categoryId !== "ALL" && { category: { id: categoryId } })
+            ...(categoryId !== "all" && { category: { id: categoryId } })
         },
-        orderBy: {
-            createdAt: sortby
-        },
+        orderBy: sortBy
     });
     return {
         data: result,
