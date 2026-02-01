@@ -38,9 +38,6 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
                 createdAt: "desc"
             }
         }
-
-        console.log({ searchText, sortBy, page, limit, categoryId, storeId })
-
         const result = await medicineService.getAllMedicines(searchText, sortBy, page, limit, categoryId, storeId)
 
         res.status(200).json({
@@ -78,8 +75,22 @@ const getCategories = async (req: Request, res: Response, next: NextFunction) =>
         next(error);
     }
 }
+
+const getUserDetails = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await medicineService.getUserDetails(req.user?.id as string);
+        res.status(200).json({
+            ok: true,
+            message: "Details retrived successfully",
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
 export const medicineController = {
     getAllMedicines,
     getMedicineById,
     getCategories,
+    getUserDetails,
 }

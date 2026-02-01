@@ -23,37 +23,46 @@ const addMedicine = async (payload: MedicinePayload, userId: string) => {
         }
     });
 }
-
-const getAllMedicines = async (isBanned: boolean, searchText: string, sortby: "asc" | "desc", page: number, limit: number, categoryId: string, userId: string) => {
+const getAllMedicines = async (searchText: string, sortBy: Record<string, string | object>, page: number, limit: number, categoryId: string, storeId: string | null) => {
     const result = await prisma.medicine.findMany({
         where: {
-            authorId: userId,
-            isBanned: isBanned,
+            ...(storeId !== null && { authorId: storeId }),
+            isBanned: false,
             name: {
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(categoryId !== "ALL" && { category: { id: categoryId } })
+            ...(categoryId !== "all" && { category: { id: categoryId } })
         },
-        orderBy: {
-            createdAt: sortby
+        include: {
+            category: true,
+            _count: {
+                select: {
+                    carts: {
+                        where: {
+                            orderId: { not: null }
+                        }
+                    },
+                    reviews: true
+                }
+            }
         },
+
+        orderBy: sortBy,
         skip: (page - 1) * limit,
         take: limit
     });
     const total = await prisma.medicine.count({
         where: {
-            authorId: userId,
-            isBanned: isBanned,
+            ...(storeId !== null && { authorId: storeId }),
+            isBanned: false,
             name: {
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(categoryId !== "ALL" && { category: { id: categoryId } })
+            ...(categoryId !== "all" && { category: { id: categoryId } })
         },
-        orderBy: {
-            createdAt: sortby
-        },
+        orderBy: sortBy
     });
     return {
         data: result,

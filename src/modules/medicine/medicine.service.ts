@@ -21,7 +21,16 @@ const getAllMedicines = async (searchText: string, sortBy: Record<string, string
                     image: true
                 }
             },
-            category: true
+            category: true,
+            _count: {
+                select: {
+                    carts: {
+                        where: {
+                            orderId: { not: null }
+                        }
+                    }
+                }
+            }
         },
 
         orderBy: sortBy,
@@ -99,8 +108,17 @@ const getCategories = async () => {
     return await prisma.category.findMany();
 }
 
+const getUserDetails = async (userId: string) => {
+    return await prisma.user.findUnique({
+        where: {
+            id: userId
+        }
+    });
+}
+
 export const medicineService = {
     getAllMedicines,
     getMedicineById,
-    getCategories
+    getCategories,
+    getUserDetails,
 }

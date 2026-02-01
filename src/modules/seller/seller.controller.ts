@@ -18,16 +18,45 @@ const addMedicine = async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 }
+
 const getAllMedicines = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const isBanned = req.query.isBanned ? req.query.isBanned === "true" : false;
         const searchText = req.query.searchText as string || "";
-        const sortby = (req.query.sortby as "asc" | "desc") || "desc";
         const page = Number(req.query.page) || 1;
-        const limit = 10;
-        const categoryId = req.query.category as string || "ALL"
+        const limit = 2;
+        const categoryId: string | null = req.query.categoryId as string || "all";
+        const storeId: string | null = req.user?.id as string;
 
-        const result = await sellerService.getAllMedicines(isBanned, searchText, sortby, page, limit, categoryId, req.user?.id!);
+        let sortByValue = (req.query.sortBy as string) || "relevance";
+        let sortBy;
+        if (sortByValue === "price-low") {
+            sortBy = {
+                price: "asc"
+            }
+        }
+        else if (sortByValue === "price-high") {
+            sortBy = {
+                price: "desc"
+            }
+        }
+        else if (sortByValue === "newest") {
+            sortBy = {
+                createdAt: "asc"
+            }
+        }
+        else if (sortByValue === "popular") {
+            sortBy = {
+                carts: {
+                    _count: "desc"
+                }
+            }
+        }
+        else {
+            sortBy = {
+                createdAt: "desc"
+            }
+        }
+        const result = await sellerService.getAllMedicines(searchText, sortBy, page, limit, categoryId, storeId)
 
         res.status(200).json({
             ok: true,
