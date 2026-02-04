@@ -6,20 +6,22 @@ import { LoggedInUser } from "../../types/loggedInUser";
 type MedicinePayload = {
     image: string;
     name: string;
-    descriptions: string,
+    description: string,
     categoryId: string;
     price: number;
+    uploadedFile: { secure_url: string; public_id: string; }
 
 }
 const addMedicine = async (payload: MedicinePayload, userId: string) => {
     return await prisma.medicine.create({
         data: {
             authorId: userId,
-            image: payload.image,
+            imageUrl: payload.uploadedFile.secure_url,
+            imageCloudinaryId: payload.uploadedFile.public_id,
             name: payload.name,
-            descriptions: payload.descriptions,
+            description: payload.description,
             categoryId: payload.categoryId,
-            price: payload.price
+            price: Number(payload.price)
         }
     });
 }
@@ -170,7 +172,8 @@ const getSingleOrder = async (orderId: string, userId: string) => {
                         select: {
                             id: true,
                             name: true,
-                            image: true,
+                            imageUrl: true,
+                            imageCloudinaryId: true,
                             price: true
                         }
                     }

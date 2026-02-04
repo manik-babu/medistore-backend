@@ -24,21 +24,22 @@ model Category {
 }
 
 model Medicine {
-  id           String    @id @default(uuid())
-  image        String
-  price        Int
-  isBanned     Boolean   @default(false)
-  isFeatured   Boolean   @default(false)
-  authorId     String
-  author       User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  name         String
-  descriptions String
-  categoryId   String?
-  category     Category? @relation(fields: [categoryId], references: [id])
-  reviews      Review[]
-  carts        Cart[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id                String    @id @default(uuid())
+  imageUrl          String
+  imageCloudinaryId String
+  price             Decimal   @db.Decimal(10, 2)
+  isBanned          Boolean   @default(false)
+  isFeatured        Boolean   @default(false)
+  authorId          String
+  author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  name              String
+  description       String
+  categoryId        String?
+  category          Category? @relation(fields: [categoryId], references: [id])
+  reviews           Review[]
+  carts             Cart[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
   @@index([authorId])
   @@index([categoryId])

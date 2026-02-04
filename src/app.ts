@@ -21,7 +21,7 @@ app.use(cors({
     credentials: true
 }))
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 
 // Better-auth api
 app.all("/api/auth/*splat", toNodeHandler(auth));

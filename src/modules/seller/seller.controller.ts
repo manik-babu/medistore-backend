@@ -3,11 +3,21 @@ import sellerService from "./seller.service";
 import CustomError from "../../helper/customError";
 import { OrderStatus, UserRole } from "../../../generated/prisma/enums";
 import { LoggedInUser } from "../../types/loggedInUser";
+import { uploadToCloudinary } from "../../configs/cloudinary";
 
 
 const addMedicine = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await sellerService.addMedicine(req.body, req.user?.id!)
+        if (!req.file) {
+            return res.status(400).json({
+                ok: false,
+                message: "Mediceine upload failed",
+                error: "No image found"
+            });
+        }
+        const uploadedFile = await uploadToCloudinary(req.file.buffer);
+
+        const result = await sellerService.addMedicine({ ...req.body, uploadedFile }, req.user?.id!)
 
         res.status(201).json({
             ok: true,
@@ -15,6 +25,7 @@ const addMedicine = async (req: Request, res: Response, next: NextFunction) => {
             data: result
         })
     } catch (error: any) {
+        console.log(error);
         next(error);
     }
 }
