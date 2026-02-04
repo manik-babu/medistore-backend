@@ -108,7 +108,7 @@ const deleteMedicine = async (req: Request, res: Response, next: NextFunction) =
 
         res.status(200).json({
             ok: true,
-            messgae: "Medicine deleted successfully",
+            message: "Medicine deleted successfully",
             data: result
         })
     } catch (error: any) {

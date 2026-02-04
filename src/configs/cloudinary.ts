@@ -32,4 +32,5 @@ export const uploadToCloudinary = async (buffer: any): Promise<{ secure_url: str
         stream.end(buffer);
     });
 }
+export default cloudinary;
 

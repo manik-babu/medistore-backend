@@ -1,4 +1,5 @@
 import { Medicine, OrderStatus, UserRole } from "../../../generated/prisma/client";
+import cloudinary from "../../configs/cloudinary";
 import CustomError from "../../helper/customError";
 import { prisma } from "../../lib/prisma";
 import { LoggedInUser } from "../../types/loggedInUser";
@@ -106,7 +107,8 @@ const deleteMedicine = async (medicineId: string, user: LoggedInUser) => {
             id: medicineId
         },
         select: {
-            authorId: true
+            authorId: true,
+            imageCloudinaryId: true,
         }
     })
 
@@ -117,11 +119,13 @@ const deleteMedicine = async (medicineId: string, user: LoggedInUser) => {
         throw new CustomError.PermissionError("Unable to update the medicine! Permission denied");
     }
 
-    return await prisma.medicine.delete({
+    const result = await prisma.medicine.delete({
         where: {
             id: medicineId
         }
     });
+    await cloudinary.uploader.destroy(medicine.imageCloudinaryId);
+    return result;
 }
 
 // Orders services
