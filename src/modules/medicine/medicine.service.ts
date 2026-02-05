@@ -65,6 +65,16 @@ const getMedicineById = async (medicineId: string) => {
             id: medicineId
         },
         include: {
+            category: true,
+            _count: {
+                select: {
+                    carts: {
+                        where: {
+                            orderId: { not: null }
+                        }
+                    }
+                }
+            },
             author: {
                 select: {
                     id: true,
@@ -72,7 +82,7 @@ const getMedicineById = async (medicineId: string) => {
                     image: true,
                 }
             }
-        }
+        },
 
     });
 
@@ -98,7 +108,7 @@ const getMedicineById = async (medicineId: string) => {
     });
 
     return {
-        result,
+        medicine: result,
         ratingAvgAndCount,
         ratingCount
     };

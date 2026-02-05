@@ -15,6 +15,9 @@ import dotenv from "dotenv";
 import path from 'path';
 const app: Application = express();
 
+
+app.set("trust proxy", true);
+
 dotenv.config({ path: path.join(process.cwd(), '.env') });
 app.use(cors({
     origin: [process.env.FRONTEND_URL!],

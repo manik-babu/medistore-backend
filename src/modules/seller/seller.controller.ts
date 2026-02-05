@@ -92,7 +92,7 @@ const updateMedicine = async (req: Request, res: Response, next: NextFunction) =
 
         res.status(200).json({
             ok: true,
-            messgae: "Medicine updated successfully",
+            message: "Medicine updated successfully",
             data: result
         })
     } catch (error: any) {
