@@ -52,7 +52,7 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
         }
         else if (sortByValue === "newest") {
             sortBy = {
-                createdAt: "asc"
+                createdAt: "desc"
             }
         }
         else if (sortByValue === "popular") {
@@ -119,9 +119,12 @@ const deleteMedicine = async (req: Request, res: Response, next: NextFunction) =
 // Orders controller
 const getOrders = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const sortby = (req.query.sortby as "asc" | "desc") || "desc";
+        const page = Number(req.query.page) || 1;
+        const limit = 2;
+        const sortBy = (req.query.sortBy as "asc" | "desc") || "desc";
         const status: OrderStatus | "ALL" = req.query.status as OrderStatus || "ALL";
-        const result = await sellerService.getOrders(req.user?.id as string, status, sortby);
+        const searchText: string = req.query.searchText as string || "";
+        const result = await sellerService.getOrders(req.user?.id as string, status, sortBy, searchText, page, limit);
 
         res.status(200).json({
             ok: true,
@@ -152,7 +155,21 @@ const updateOrder = async (req: Request, res: Response, next: NextFunction) => {
 
         res.status(200).json({
             ok: true,
-            message: `Order update to ${orderStatus}`,
+            message: `Order updated to ${orderStatus}`,
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
+
+const getDashboardData = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await sellerService.getDashboardData(req.user?.id as string)
+
+        res.status(200).json({
+            ok: true,
+            message: "Dashboard data retrived successfully",
             data: result
         });
     } catch (error: any) {
@@ -168,5 +185,6 @@ const sellerController = {
     getOrders,
     getSingleOrder,
     updateOrder,
+    getDashboardData,
 }
 export default sellerController;

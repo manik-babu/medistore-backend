@@ -27,13 +27,21 @@ const getCart = async (userId: string) => {
                 select: {
                     id: true,
                     name: true,
-                    image: true,
+                    imageUrl: true,
                     price: true,
-                    authorId: true,
+                    author: {
+                        select: {
+                            id: true,
+                            storeName: true
+                        }
+                    }
 
                 }
 
             }
+        },
+        orderBy: {
+            createdAt: "asc"
         }
     });
     return result;

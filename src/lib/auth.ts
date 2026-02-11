@@ -12,8 +12,8 @@ export const auth = betterAuth({
     }),
     advanced: {
         defaultCookieAttributes: {
-            secure: false, // secure: true only in production
-            sameSite: 'lax', // 'none' for cross-site in production, 'lax' for dev
+            secure: isProduction ? true : false, // secure: true only in production
+            sameSite: isProduction ? "none" : 'lax', // 'none' for cross-site in production, 'lax' for dev
             httpOnly: true,
         },
         trustProxy: true

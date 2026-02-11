@@ -88,12 +88,13 @@ const getSingleOrder = async (orderId: string, userId: string) => {
                 }
             },
             carts: {
-                include: {
+                select: {
+                    id: true,
+                    quantity: true,
                     medicine: {
                         select: {
                             id: true,
                             name: true,
-                            image: true,
                             price: true
                         }
                     }
@@ -104,8 +105,12 @@ const getSingleOrder = async (orderId: string, userId: string) => {
     if (!order) {
         throw new CustomError.NotFoundError("Unable to retrive your order! The order might no longer exist.");
     }
+    const totalPrice = order.carts.reduce((total: number, cart: any) => cart.quantity * cart.medicine.price + total, 60);
 
-    return order;
+    return {
+        totalPrice,
+        ...order
+    };
 }
 const updateOrder = async (orderId: string, userId: string) => {
     const order = await prisma.order.findUnique({

@@ -3,8 +3,9 @@ import CustomError from "../helper/customError";
 import { Prisma } from "../../generated/prisma/client";
 
 const globalErrorHandler = (error: any, req: Request, res: Response, next: NextFunction) => {
+    console.log({ GlobalError: error })
     let statusCode = 500;
-    let statusMessage = "Something went wrong!"
+    let statusMessage = error.message
 
     if (error instanceof CustomError.NotFoundError) {
         statusCode = 404;

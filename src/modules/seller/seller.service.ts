@@ -129,11 +129,31 @@ const deleteMedicine = async (medicineId: string, user: LoggedInUser) => {
 }
 
 // Orders services
-const getOrders = async (userId: string, status: OrderStatus | "ALL", sortby: "asc" | "desc") => {
+const getOrders = async (userId: string, status: OrderStatus | "ALL", sortBy: "asc" | "desc", searchText: string, page: number, limit: number) => {
     const orders = await prisma.order.findMany({
         where: {
             sellerId: userId,
-            ...(status !== "ALL" && { status })
+            ...(status == "ALL" ? { status: { not: "CANCELLED" } } : { status }),
+            OR: [
+                {
+                    name: {
+                        contains: searchText,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    phone: {
+                        contains: searchText,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    address: {
+                        contains: searchText,
+                        mode: "insensitive"
+                    }
+                }
+            ]
         },
         include: {
             carts: {
@@ -148,9 +168,38 @@ const getOrders = async (userId: string, status: OrderStatus | "ALL", sortby: "a
             }
         },
         orderBy: {
-            createdAt: sortby
-        }
+            createdAt: sortBy
+        },
+        take: limit,
+        skip: (page - 1) * limit
     });
+
+    const total = await prisma.order.count({
+        where: {
+            sellerId: userId,
+            ...(status == "ALL" ? { status: { not: "CANCELLED" } } : { status }),
+            OR: [
+                {
+                    name: {
+                        contains: searchText,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    phone: {
+                        contains: searchText,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    address: {
+                        contains: searchText,
+                        mode: "insensitive"
+                    }
+                }
+            ]
+        }
+    })
 
     const formatedOrders = orders.map(order => {
         const totalPrice = order.carts.reduce((total: number, cart: any) => cart.quantity * cart.medicine.price + total, 60);
@@ -159,8 +208,17 @@ const getOrders = async (userId: string, status: OrderStatus | "ALL", sortby: "a
             ...orderWithoutCarts,
             totalPrice
         };
-    })
-    return formatedOrders;
+    });
+
+    return {
+        orders: formatedOrders,
+        meta: {
+            total: total,
+            page: page,
+            limit: limit,
+            totalPage: Math.ceil(total / limit)
+        }
+    };
 }
 
 const getSingleOrder = async (orderId: string, userId: string) => {
@@ -171,13 +229,13 @@ const getSingleOrder = async (orderId: string, userId: string) => {
         },
         include: {
             carts: {
-                include: {
+                select: {
+                    id: true,
+                    quantity: true,
                     medicine: {
                         select: {
                             id: true,
                             name: true,
-                            imageUrl: true,
-                            imageCloudinaryId: true,
                             price: true
                         }
                     }
@@ -188,8 +246,13 @@ const getSingleOrder = async (orderId: string, userId: string) => {
     if (!order) {
         throw new CustomError.NotFoundError("Unable to retrive your order! The order might no longer exist.");
     }
+    const totalPrice = order.carts.reduce((total: number, cart: any) => cart.quantity * cart.medicine.price + total, 60);
 
-    return order;
+
+    return {
+        ...order,
+        totalPrice
+    };
 }
 const updateOrder = async (orderId: string, orderStatus: OrderStatus, userId: string) => {
     const order = await prisma.order.findUnique({
@@ -202,7 +265,6 @@ const updateOrder = async (orderId: string, orderStatus: OrderStatus, userId: st
             status: true
         }
     });
-    console.log(order);
     if (!order) {
         throw new CustomError.NotFoundError("Unable to update your order! The order might no longer exist.");
     }
@@ -221,6 +283,18 @@ const updateOrder = async (orderId: string, orderStatus: OrderStatus, userId: st
     });
 }
 
+const getDashboardData = async (userId: string) => {
+    const result = await prisma.order.groupBy({
+        by: ["status"],
+        where: {
+            status: { not: "CANCELLED" },
+            sellerId: userId
+        },
+        _count: true
+    })
+    return result;
+}
+
 const sellerService = {
     addMedicine,
     updateMedicine,
@@ -229,5 +303,6 @@ const sellerService = {
     getOrders,
     getSingleOrder,
     updateOrder,
+    getDashboardData
 }
 export default sellerService;

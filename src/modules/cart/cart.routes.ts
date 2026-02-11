@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { cartController } from "./cart.controller";
 
-//? /api/cart
+//? /api/carts
 const router = Router();
 
 router.post("/", cartController.addCart);

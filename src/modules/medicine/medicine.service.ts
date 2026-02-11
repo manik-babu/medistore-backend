@@ -122,6 +122,17 @@ const getUserDetails = async (userId: string) => {
     return await prisma.user.findUnique({
         where: {
             id: userId
+        },
+        include: {
+            _count: {
+                select: {
+                    carts: {
+                        where: {
+                            orderId: null
+                        }
+                    }
+                }
+            }
         }
     });
 }

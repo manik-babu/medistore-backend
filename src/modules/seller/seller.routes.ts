@@ -14,6 +14,6 @@ router.delete("/medicines/:medicineId", sellerController.deleteMedicine);
 router.get("/orders", sellerController.getOrders);
 router.get("/orders/:orderId", sellerController.getSingleOrder)
 router.patch("/orders/:orderId", sellerController.updateOrder)
-
+router.get("/dashboard", sellerController.getDashboardData)
 
 export const sellerRoute = router;

@@ -32,7 +32,7 @@ app.use("/api/seller", authMiddleware(UserRole.SELLER), sellerRoute);
 app.use("/api/admin", authMiddleware(UserRole.ADMIN), adminRoute);
 app.use("/api", medicineRoute);
 app.use("/api/reviews", reviewRoute);
-app.use('/api/cart', authMiddleware(UserRole.CUSTOMER), cartRoute);
+app.use('/api/carts', authMiddleware(UserRole.CUSTOMER), cartRoute);
 app.use("/api/orders", authMiddleware(UserRole.CUSTOMER), orderRoute);
 
 app.get('/', (req: Request, res: Response) => {
