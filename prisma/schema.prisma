@@ -87,7 +87,6 @@ model Order {
   sellerId   String
   seller     User        @relation("sellerOrders", fields: [sellerId], references: [id], onDelete: Cascade)
   status     OrderStatus @default(PROCESSING)
-  totalPrice Decimal     @db.Decimal(10, 2)
   address    String
   phone      String
   name       String

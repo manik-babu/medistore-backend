@@ -5,6 +5,22 @@ import { LoggedInUser } from "../../types/loggedInUser";
 
 
 const addReview = async (payload: Pick<Review, "medicineId" | "content" | "rating">, userId: string) => {
+    const isOrdered = await prisma.order.count({
+        where: {
+            customerId: userId,
+            status: "DELIVERED",
+            carts: {
+                some: {
+                    medicineId: payload.medicineId
+                }
+            }
+        }
+    })
+
+    if (isOrdered === 0) {
+        throw new CustomError.PermissionError("You can only review purchased medicines.");
+    }
+
     const result = await prisma.review.create({
         data: {
             ...payload,

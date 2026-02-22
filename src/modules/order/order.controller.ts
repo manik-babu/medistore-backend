@@ -4,7 +4,7 @@ import { OrderStatus } from "../../../generated/prisma/enums";
 
 const addOrder = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = await orderService.addOrder(req.body, req.user?.id as string)
+        const result = await orderService.addOrder(req.body, req.user)
 
         res.status(201).json({
             ok: true,

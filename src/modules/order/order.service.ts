@@ -1,5 +1,6 @@
 import { OrderStatus } from "../../../generated/prisma/enums"
 import CustomError from "../../helper/customError";
+import mailSender from "../../helper/sendEmail";
 import { prisma } from "../../lib/prisma";
 
 // data = {
@@ -16,15 +17,23 @@ type Data = {
     address: string;
     orders: Record<string, string[]>
 }
-const addOrder = async (data: Data, userId: string) => {
+const addOrder = async (data: Data, user: any) => {
     Object.entries(data.orders).forEach(async ([sellerId, cartIds]) => {
         const order = await prisma.order.create({
             data: {
                 sellerId: sellerId,
-                customerId: userId,
+                customerId: user.id,
                 address: data.address,
                 name: data.name,
                 phone: data.phone
+            },
+            select: {
+                id: true,
+                seller: {
+                    select: {
+                        email: true
+                    }
+                }
             }
         });
         await prisma.cart.updateMany({
@@ -37,6 +46,7 @@ const addOrder = async (data: Data, userId: string) => {
                 orderId: order.id
             }
         });
+        await mailSender.sellerOrder(data.name, data.phone, data.address, order.seller.email);
     });
     return [];
 
@@ -108,8 +118,8 @@ const getSingleOrder = async (orderId: string, userId: string) => {
     const totalPrice = order.carts.reduce((total: number, cart: any) => cart.quantity * cart.medicine.price + total, 60);
 
     return {
-        totalPrice,
-        ...order
+        ...order,
+        totalPrice: totalPrice
     };
 }
 const updateOrder = async (orderId: string, userId: string) => {

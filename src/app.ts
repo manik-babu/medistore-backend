@@ -13,6 +13,7 @@ import { cartRoute } from './modules/cart/cart.routes';
 import { orderRoute } from './modules/order/order.routes';
 import dotenv from "dotenv";
 import path from 'path';
+import { userRoute } from './modules/user/user.routes';
 const app: Application = express();
 
 
@@ -34,6 +35,7 @@ app.use("/api", medicineRoute);
 app.use("/api/reviews", reviewRoute);
 app.use('/api/carts', authMiddleware(UserRole.CUSTOMER), cartRoute);
 app.use("/api/orders", authMiddleware(UserRole.CUSTOMER), orderRoute);
+app.use("/api/user", authMiddleware(UserRole.ADMIN, UserRole.CUSTOMER, UserRole.SELLER), userRoute);
 
 app.get('/', (req: Request, res: Response) => {
     res.status(200).json({

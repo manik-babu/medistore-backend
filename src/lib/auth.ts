@@ -1,8 +1,8 @@
-import { betterAuth, string } from "better-auth";
+import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 // If your Prisma file is located elsewhere, you can change the path
 import { prisma } from "./prisma";
-import sendMail from "../helper/sendEmail";
+import mailSender from "../helper/sendEmail";
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -58,7 +58,7 @@ export const auth = betterAuth({
         sendOnSignUp: true,
         sendVerificationEmail: async ({ user, url, token }, request) => {
             try {
-                await sendMail(user, url, token);
+                await mailSender.verifyEmail(user, url, token);
             }
             catch (error) {
                 console.log("An error accured ", error);
