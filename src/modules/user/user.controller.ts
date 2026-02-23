@@ -25,8 +25,21 @@ const changeRole = async (req: Request, res: Response, next: NextFunction) => {
         next(error);
     }
 }
+const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await userService.updateProfile(req.user?.id as string, req.body);
+        res.status(200).json({
+            ok: true,
+            message: "Profile updated successfully",
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
 
 export const userController = {
     getUserDetails,
     changeRole,
+    updateProfile,
 }

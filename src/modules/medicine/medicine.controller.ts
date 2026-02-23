@@ -5,7 +5,7 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
     try {
         const searchText = req.query.searchText as string || "";
         const page = Number(req.query.page) || 1;
-        const limit = 10;
+        const limit = 5;
         const categoryId: string | null = req.query.categoryId as string || "all";
         const storeId: string | null = req.query.storeId as string || null;
 
