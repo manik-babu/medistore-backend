@@ -2,7 +2,7 @@ import CustomError from "../../helper/customError";
 import { prisma } from "../../lib/prisma";
 
 
-const getAllMedicines = async (searchText: string, sortBy: Record<string, string | object>, page: number, limit: number, categoryId: string, storeId: string | null) => {
+const getAllMedicines = async (searchText: string, sortBy: Record<string, string | object>, page: number, limit: number, category: string, storeId: string | null) => {
     const result = await prisma.medicine.findMany({
         where: {
             ...(storeId !== null && { authorId: storeId }),
@@ -11,7 +11,7 @@ const getAllMedicines = async (searchText: string, sortBy: Record<string, string
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(categoryId !== "all" && { category: { id: categoryId } })
+            ...(category !== "All Categories" && { category: { name: category } })
         },
         include: {
             author: {
@@ -45,7 +45,7 @@ const getAllMedicines = async (searchText: string, sortBy: Record<string, string
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(categoryId !== "all" && { category: { id: categoryId } })
+            ...(category !== "All Categories" && { category: { name: category } })
         },
         orderBy: sortBy
     });

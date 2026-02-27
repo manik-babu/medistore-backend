@@ -6,7 +6,7 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
         const searchText = req.query.searchText as string || "";
         const page = Number(req.query.page) || 1;
         const limit = 5;
-        const categoryId: string | null = req.query.categoryId as string || "all";
+        const category: string | null = req.query.category as string || "All Categories";
         const storeId: string | null = req.query.storeId as string || null;
 
         let sortByValue = (req.query.sortBy as string) || "relevance";
@@ -38,7 +38,7 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
                 createdAt: "desc"
             }
         }
-        const result = await medicineService.getAllMedicines(searchText, sortBy, page, limit, categoryId, storeId)
+        const result = await medicineService.getAllMedicines(searchText, sortBy, page, limit, category, storeId)
 
         res.status(200).json({
             ok: true,
