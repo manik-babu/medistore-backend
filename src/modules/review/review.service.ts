@@ -27,6 +27,11 @@ const addReview = async (payload: Pick<Review, "medicineId" | "content" | "ratin
             authorId: userId
         },
         include: {
+            medicine: {
+                select: {
+                    authorId: true
+                }
+            },
             author: {
                 select: {
                     id: true,
@@ -75,7 +80,7 @@ const getReviews = async (rating: number, sortby: "asc" | "desc", page: number, 
         },
     });
     return {
-        data: result,
+        reviews: result,
         meta: {
             total: total,
             page: page,
@@ -136,6 +141,20 @@ const reviewReply = async (reviewId: string, data: string, sellerId: string) => 
         },
         data: {
             storeReply: data
+        },
+        include: {
+            author: {
+                select: {
+                    id: true,
+                    name: true,
+                    image: true
+                }
+            },
+            medicine: {
+                select: {
+                    authorId: true
+                }
+            }
         }
     });
 

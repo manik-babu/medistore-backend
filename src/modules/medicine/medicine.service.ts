@@ -90,7 +90,7 @@ const getMedicineById = async (medicineId: string) => {
         throw new CustomError.NotFoundError("Unable to update your medicine! The medicine might no longer exist.");
     }
 
-    const ratingAvgAndCount = await prisma.review.aggregate({
+    const total = await prisma.review.aggregate({
         where: {
             medicineId: medicineId
         },
@@ -109,8 +109,10 @@ const getMedicineById = async (medicineId: string) => {
 
     return {
         medicine: result,
-        ratingAvgAndCount,
-        ratingCount
+        ratings: {
+            total: total,
+            single: ratingCount
+        }
     };
 }
 

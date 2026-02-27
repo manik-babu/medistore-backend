@@ -19,17 +19,17 @@ const addReview = async (req: Request, res: Response, next: NextFunction) => {
 const getReviews = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const medicineId = req.params.medicineId as string;
-        const sortby = (req.query.sortby as "asc" | "desc") || "desc";
+        const sortBy = (req.query.sortBy as "asc" | "desc") || "desc";
         const page = Number(req.query.page) || 1;
         const limit = 10;
         const rating = req.query.rating ? Number(req.query.rating) : -1;
 
 
-        const result = await reviewsService.getReviews(rating, sortby, page, limit, medicineId);
+        const result = await reviewsService.getReviews(rating, sortBy, page, limit, medicineId);
 
         res.status(200).json({
             ok: true,
-            message: "All reviews retrived successfully",
+            message: "All reviews retrieved successfully",
             data: result
         });
     } catch (error: any) {
@@ -45,7 +45,7 @@ const deleteReview = async (req: Request, res: Response, next: NextFunction) => 
 
         res.status(200).json({
             ok: true,
-            messgae: "Review deleted successfully",
+            message: "Review deleted successfully",
             data: result
         })
     } catch (error: any) {
@@ -59,7 +59,7 @@ const reviewReply = async (req: Request, res: Response, next: NextFunction) => {
 
         res.status(200).json({
             ok: true,
-            messgae: "Review reply successfully",
+            message: "Review reply successfully",
             data: result
         })
     } catch (error: any) {
