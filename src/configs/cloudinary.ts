@@ -15,8 +15,7 @@ export const upload = multer({
         fileSize: 10 * 1024 * 1024
     }
 });
-const cloudinaryFolderName = "MediStore"
-export const uploadToCloudinary = async (buffer: any): Promise<{ secure_url: string; public_id: string; }> => {
+export const uploadToCloudinary = async (buffer: any, cloudinaryFolderName: string): Promise<{ secure_url: string; public_id: string; }> => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
             { folder: cloudinaryFolderName },

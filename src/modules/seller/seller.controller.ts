@@ -11,11 +11,11 @@ const addMedicine = async (req: Request, res: Response, next: NextFunction) => {
         if (!req.file) {
             return res.status(400).json({
                 ok: false,
-                message: "Mediceine upload failed",
+                message: "Medicine upload failed",
                 error: "No image found"
             });
         }
-        const uploadedFile = await uploadToCloudinary(req.file.buffer);
+        const uploadedFile = await uploadToCloudinary(req.file.buffer, "MediStore");
 
         const result = await sellerService.addMedicine({ ...req.body, uploadedFile }, req.user?.id!)
 

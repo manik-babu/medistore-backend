@@ -7,4 +7,5 @@ const router = Router();
 router.get('/medicines', medicineController.getAllMedicines)
 router.get("/medicines/:medicineId", medicineController.getMedicineById);
 router.get("/categories", medicineController.getCategories);
+router.get("/featured", medicineController.getFeaturedMedicines)
 export const medicineRoute = router;

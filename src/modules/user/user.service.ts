@@ -47,8 +47,19 @@ const updateProfile = async (userId: string, data: ProfileData) => {
     });
 }
 
+const updateProfileImage = async (userId: string, imageUrl: string) => {
+    return await prisma.user.update({
+        where: {
+            id: userId
+        },
+        data: {
+            image: imageUrl
+        }
+    });
+}
 export const userService = {
     getUserDetails,
     changeRole,
     updateProfile,
+    updateProfileImage,
 }

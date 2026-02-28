@@ -55,7 +55,7 @@ const getMedicineById = async (req: Request, res: Response, next: NextFunction) 
         const result = await medicineService.getMedicineById(req.params.medicineId as string);
         res.status(200).json({
             ok: true,
-            message: "All medicine retrived successfully",
+            message: "All medicine retrieved successfully",
             data: result
         });
     } catch (error: any) {
@@ -88,9 +88,22 @@ const getUserDetails = async (req: Request, res: Response, next: NextFunction) =
         next(error);
     }
 }
+const getFeaturedMedicines = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const result = await medicineService.getFeaturedMedicines();
+        res.status(200).json({
+            ok: true,
+            message: "Medicine retrieved successfully",
+            data: result
+        });
+    } catch (error: any) {
+        next(error);
+    }
+}
 export const medicineController = {
     getAllMedicines,
     getMedicineById,
     getCategories,
     getUserDetails,
+    getFeaturedMedicines,
 }
