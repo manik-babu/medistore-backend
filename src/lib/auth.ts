@@ -1,8 +1,9 @@
-import { betterAuth } from "better-auth";
+import { APIError, betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 // If your Prisma file is located elsewhere, you can change the path
 import { prisma } from "./prisma";
 import mailSender from "../helper/sendEmail";
+import { createAuthMiddleware } from "better-auth/api";
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -61,7 +62,7 @@ export const auth = betterAuth({
                 await mailSender.verifyEmail(user, url, token);
             }
             catch (error) {
-                console.log("An error accured ", error);
+                console.log("An error occurred ", error);
             }
         },
     },
@@ -72,4 +73,25 @@ export const auth = betterAuth({
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         },
     },
+    hooks: {
+        before: createAuthMiddleware(async (ctx) => {
+            const email = ctx?.body?.email;
+            if (!email) return;
+
+            const user = await prisma.user.findUnique({
+                where: {
+                    email: email
+                },
+                select: {
+                    isBanned: true
+                }
+            });
+            if (user?.isBanned) {
+                throw new APIError("FORBIDDEN", {
+                    message: "Your account has been banned. Please contact support."
+                })
+            }
+
+        })
+    }
 });

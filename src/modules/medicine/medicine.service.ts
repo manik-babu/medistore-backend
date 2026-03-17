@@ -163,26 +163,13 @@ const getFeaturedMedicines = async () => {
         where: {
             isFeatured: true
         },
-        take: 5,
-        include: {
-            author: {
-                select: {
-                    id: true,
-                    storeName: true,
-                    image: true
-                }
-            },
-            category: true,
-            _count: {
-                select: {
-                    carts: {
-                        where: {
-                            orderId: { not: null }
-                        }
-                    }
-                }
-            }
-        },
+        select: {
+            id: true,
+            imageUrl: true,
+            name: true,
+            description: true,
+            price: true
+        }
     })
 }
 

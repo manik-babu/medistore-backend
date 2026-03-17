@@ -97,7 +97,6 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
         const isFeatured = (req.query.featured as string) === "true" || false;
         const limit = 5;
         const category: string | null = req.query.category as string || "All Categories";
-        const storeId: string | null = req.query.storeId as string || null;
 
         let sortByValue = (req.query.sortBy as string) || "relevance";
         let sortBy;
@@ -128,7 +127,7 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
                 createdAt: "desc"
             }
         }
-        const result = await adminService.getAllMedicines(searchText, isBanned, isFeatured, sortBy, page, limit, category, storeId)
+        const result = await adminService.getAllMedicines(searchText, isBanned, isFeatured, sortBy, page, limit, category)
 
         res.status(200).json({
             ok: true,

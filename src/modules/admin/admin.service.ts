@@ -75,6 +75,14 @@ const getAllUsers = async (payload: GetAllUsersPayload) => {
 }
 
 const addCategory = async ({ name }: { name: string }) => {
+    const isExists = await prisma.category.count({
+        where: {
+            name: name
+        }
+    });
+    if (isExists) {
+        throw new Error("Category already exists! try new");
+    }
     return await prisma.category.create({
         data: {
             name: name
@@ -88,10 +96,14 @@ const updateUser = async (userId: string, isBanned: boolean) => {
         },
         select: {
             id: true,
+            role: true,
         }
     })
     if (!user) {
         throw new CustomError.NotFoundError("Unable to update user! The user might no longer exist.");
+    }
+    if (user.role === UserRole.ADMIN) {
+        throw new CustomError.PermissionError("Unable to update user!");
     }
 
     return await prisma.user.update({
@@ -229,10 +241,9 @@ const getUserDetails = async (userId: string) => {
     });
 }
 
-const getAllMedicines = async (searchText: string, isBanned: boolean, isFeatured: boolean, sortBy: Record<string, string | object>, page: number, limit: number, category: string, storeId: string | null) => {
+const getAllMedicines = async (searchText: string, isBanned: boolean, isFeatured: boolean, sortBy: Record<string, string | object>, page: number, limit: number, category: string) => {
     const result = await prisma.medicine.findMany({
         where: {
-            ...(storeId !== null && { authorId: storeId }),
             isBanned: isBanned,
             isFeatured: isFeatured,
             name: {
@@ -268,7 +279,6 @@ const getAllMedicines = async (searchText: string, isBanned: boolean, isFeatured
     });
     const total = await prisma.medicine.count({
         where: {
-            ...(storeId !== null && { authorId: storeId }),
             isBanned: false,
             name: {
                 contains: searchText,

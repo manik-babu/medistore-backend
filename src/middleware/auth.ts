@@ -17,6 +17,17 @@ const auth = (...roles: UserRole[]) => {
                     error: "Session not found"
                 })
             }
+            if (session.user.isBanned) {
+                await betterAuth.api.signOut({
+                    headers: req.headers as any
+                });
+                return res.status(403).json({
+                    ok: false,
+                    status: 403,
+                    message: "Your account has been banned. Please contact support.",
+                    error: "Account banned by admin"
+                })
+            }
             if (!roles.includes(session.user.role as UserRole)) {
                 return res.status(401).json({
                     ok: false,

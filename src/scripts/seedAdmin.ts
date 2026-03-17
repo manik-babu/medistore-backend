@@ -1,13 +1,13 @@
-import { UserRole } from "../../generated/prisma/enums"
 import { prisma } from "../lib/prisma";
 
+const BACKEND_URL = "https://medistore-unique.vercel.app";  // "http://localhost:8080" for dev
 async function seedAdmin() {
     try {
         const adminData = {
             name: "Admin",
-            email: "admin@admin.com",
-            password: "admin1234",
-            role: UserRole.ADMIN
+            email: "admin@gmail.com",
+            password: "medistore",
+            role: "ADMIN"
         };
 
         const user = await prisma.user.findUnique({
@@ -23,11 +23,11 @@ async function seedAdmin() {
             throw new Error("User already exists");
         }
 
-        const data = await fetch(`http://localhost:8080/api/auth/sign-up/email`, {
+        const data = await fetch(`${BACKEND_URL}/api/auth/sign-up/email`, {
             method: "POST",
             headers: {
                 "Content-type": "application/json",
-                Origin: "http://localhost:8080"
+                Origin: `${BACKEND_URL}`
             },
             body: JSON.stringify(adminData)
         });

@@ -30,13 +30,16 @@ const addMedicine = async (req: Request, res: Response, next: NextFunction) => {
     }
 }
 
+
 const getAllMedicines = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const searchText = req.query.searchText as string || "";
         const page = Number(req.query.page) || 1;
-        const limit = 2;
-        const categoryId: string | null = req.query.categoryId as string || "all";
-        const storeId: string | null = req.user?.id as string;
+        const isBanned = (req.query.banned as string) === "true" || false;
+        const isFeatured = (req.query.featured as string) === "true" || false;
+        const limit = 10;
+        const category: string | null = req.query.category as string || "All Categories";
+        const storeId: string = req.user?.id as string;
 
         let sortByValue = (req.query.sortBy as string) || "relevance";
         let sortBy;
@@ -52,7 +55,7 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
         }
         else if (sortByValue === "newest") {
             sortBy = {
-                createdAt: "desc"
+                createdAt: "asc"
             }
         }
         else if (sortByValue === "popular") {
@@ -67,11 +70,11 @@ const getAllMedicines = async (req: Request, res: Response, next: NextFunction) 
                 createdAt: "desc"
             }
         }
-        const result = await sellerService.getAllMedicines(searchText, sortBy, page, limit, categoryId, storeId)
+        const result = await sellerService.getAllMedicines(searchText, isBanned, isFeatured, sortBy, page, limit, category, storeId)
 
         res.status(200).json({
             ok: true,
-            message: "All medicine retrived successfully",
+            message: "All medicine retrieved successfully",
             data: result
         });
     } catch (error: any) {
@@ -120,7 +123,7 @@ const deleteMedicine = async (req: Request, res: Response, next: NextFunction) =
 const getOrders = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const page = Number(req.query.page) || 1;
-        const limit = 2;
+        const limit = 5;
         const sortBy = (req.query.sortBy as "asc" | "desc") || "desc";
         const status: OrderStatus | "ALL" = req.query.status as OrderStatus || "ALL";
         const searchText: string = req.query.searchText as string || "";
@@ -128,7 +131,7 @@ const getOrders = async (req: Request, res: Response, next: NextFunction) => {
 
         res.status(200).json({
             ok: true,
-            message: "All orders retrived successfully",
+            message: "All orders retrieved successfully",
             data: result
         });
     } catch (error: any) {
@@ -141,7 +144,7 @@ const getSingleOrder = async (req: Request, res: Response, next: NextFunction) =
 
         res.status(200).json({
             ok: true,
-            message: "Order retrived successfully",
+            message: "Order retrieved successfully",
             data: result
         });
     } catch (error: any) {
@@ -169,7 +172,7 @@ const getDashboardData = async (req: Request, res: Response, next: NextFunction)
 
         res.status(200).json({
             ok: true,
-            message: "Dashboard data retrived successfully",
+            message: "Dashboard data retrieved successfully",
             data: result
         });
     } catch (error: any) {

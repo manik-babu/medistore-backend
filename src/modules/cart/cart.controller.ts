@@ -8,7 +8,7 @@ const addCart = async (req: Request, res: Response, next: NextFunction) => {
 
         res.status(201).json({
             ok: true,
-            message: "Cart added",
+            message: "Medicine added to cart",
             data: result
         });
     } catch (error: any) {
@@ -22,7 +22,7 @@ const getCart = async (req: Request, res: Response, next: NextFunction) => {
 
         res.status(200).json({
             ok: true,
-            message: "All cart retrived successfully",
+            message: "All cart retrieved successfully",
             data: result
         });
     } catch (error: any) {

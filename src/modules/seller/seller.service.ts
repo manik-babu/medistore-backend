@@ -26,18 +26,27 @@ const addMedicine = async (payload: MedicinePayload, userId: string) => {
         }
     });
 }
-const getAllMedicines = async (searchText: string, sortBy: Record<string, string | object>, page: number, limit: number, categoryId: string, storeId: string | null) => {
+const getAllMedicines = async (searchText: string, isBanned: boolean, isFeatured: boolean, sortBy: Record<string, string | object>, page: number, limit: number, category: string, storeId: string | null) => {
     const result = await prisma.medicine.findMany({
         where: {
             ...(storeId !== null && { authorId: storeId }),
-            isBanned: false,
+            ...(isFeatured && { isFeatured: true }),
+            ...(isBanned && { isBanned: true }),
             name: {
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(categoryId !== "all" && { category: { id: categoryId } })
+            ...(category !== "All Categories" && { category: { name: category } })
         },
         include: {
+            author: {
+                select: {
+                    id: true,
+                    storeName: true,
+                    image: true,
+                    email: true
+                }
+            },
             category: true,
             _count: {
                 select: {
@@ -45,8 +54,7 @@ const getAllMedicines = async (searchText: string, sortBy: Record<string, string
                         where: {
                             orderId: { not: null }
                         }
-                    },
-                    reviews: true
+                    }
                 }
             }
         },
@@ -58,12 +66,13 @@ const getAllMedicines = async (searchText: string, sortBy: Record<string, string
     const total = await prisma.medicine.count({
         where: {
             ...(storeId !== null && { authorId: storeId }),
-            isBanned: false,
+            ...(isFeatured && { isFeatured: true }),
+            ...(isBanned && { isBanned: true }),
             name: {
                 contains: searchText,
                 mode: "insensitive"
             },
-            ...(categoryId !== "all" && { category: { id: categoryId } })
+            ...(category !== "All Categories" && { category: { name: category } })
         },
         orderBy: sortBy
     });
@@ -98,7 +107,18 @@ const updateMedicine = async (payload: Partial<MedicinePayload>, medicineId: str
         where: {
             id: medicineId
         },
-        data: payload
+        data: payload,
+        include: {
+            _count: {
+                select: {
+                    carts: {
+                        where: {
+                            orderId: { not: null }
+                        }
+                    }
+                }
+            }
+        }
     });
 }
 const deleteMedicine = async (medicineId: string, user: LoggedInUser) => {
@@ -132,6 +152,9 @@ const deleteMedicine = async (medicineId: string, user: LoggedInUser) => {
 const getOrders = async (userId: string, status: OrderStatus | "ALL", sortBy: "asc" | "desc", searchText: string, page: number, limit: number) => {
     const orders = await prisma.order.findMany({
         where: {
+            customer: {
+                isBanned: false
+            },
             sellerId: userId,
             ...(status == "ALL" ? { status: { not: "CANCELLED" } } : { status }),
             OR: [
@@ -284,15 +307,87 @@ const updateOrder = async (orderId: string, orderStatus: OrderStatus, userId: st
 }
 
 const getDashboardData = async (userId: string) => {
-    const result = await prisma.order.groupBy({
-        by: ["status"],
+
+    const [totalMedicine, featuredMedicine, bannedMedicine, totalOrder, processingOrder, shippedOrder, deliveredOrder] = await prisma.$transaction([
+        //Medicine details
+        prisma.medicine.count({
+            where: {
+                authorId: userId
+            }
+        }),
+        prisma.medicine.count({
+            where: {
+                authorId: userId,
+                isFeatured: true
+            }
+        }),
+        prisma.medicine.count({
+            where: {
+                authorId: userId,
+                isBanned: true
+            }
+        }),
+        // order details
+        prisma.order.count({
+            where: {
+                sellerId: userId
+            }
+        }),
+        prisma.order.count({
+            where: {
+                sellerId: userId,
+                status: "PROCESSING",
+            }
+        }),
+        prisma.order.count({
+            where: {
+                sellerId: userId,
+                status: "SHIPPED"
+            }
+        }),
+        prisma.order.count({
+            where: {
+                sellerId: userId,
+                status: "DELIVERED"
+            }
+        }),
+
+    ]);
+    const soledMedicines = await prisma.cart.findMany({
         where: {
-            status: { not: "CANCELLED" },
-            sellerId: userId
+            order: {
+                sellerId: userId,
+                status: "DELIVERED"
+            }
         },
-        _count: true
-    })
-    return result;
+        select: {
+            medicine: {
+                select: {
+                    price: true
+                }
+            },
+            quantity: true
+        }
+    });
+    const totalSell = soledMedicines.reduce((total: number, medicine) => {
+        return (total + (Number(medicine.medicine.price) * medicine.quantity))
+    }, 0)
+    return {
+        sellPrice: {
+            total: totalSell
+        },
+        medicine: {
+            total: totalMedicine,
+            featured: featuredMedicine,
+            banned: bannedMedicine
+        },
+        order: {
+            total: totalOrder,
+            processing: processingOrder,
+            shipped: shippedOrder,
+            delivered: deliveredOrder
+        }
+    };
 }
 
 const sellerService = {

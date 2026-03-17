@@ -67,6 +67,11 @@ const getOrder = async (userId: string, sortby: "asc" | "desc", status: OrderSta
                         }
                     }
                 }
+            },
+            seller: {
+                select: {
+                    isBanned: true
+                }
             }
         },
         orderBy: {

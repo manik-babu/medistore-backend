@@ -4,20 +4,25 @@ import { prisma } from "../../lib/prisma";
 
 
 const addCart = async (payload: Pick<Cart, "medicineId" | "quantity">, userId: string) => {
-    return await prisma.cart.create({
+    const cart = await prisma.cart.create({
         data: {
             ...payload,
             authorId: userId
         }
     });
+    return cart;
 }
 const getCart = async (userId: string) => {
     const result = await prisma.cart.findMany({
         where: {
+            authorId: userId,
             orderId: null,
             medicine: {
-                isBanned: false
-            }
+                isBanned: false,
+                author: {
+                    isBanned: false
+                }
+            },
         },
         select: {
             id: true,
